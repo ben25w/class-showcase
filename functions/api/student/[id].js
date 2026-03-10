@@ -1,0 +1,97 @@
+// GET /api/student/:id    — get student info + photos
+// PUT /api/student/:id    — rename student (teacher)
+// DELETE /api/student/:id — remove student + photos (teacher)
+
+const CORS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, PUT, DELETE, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, X-Admin-Password, X-Teacher-Password',
+};
+
+function slugify(name) {
+  return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+}
+
+function json(data, status = 200) {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: { ...CORS, 'Content-Type': 'application/json' },
+  });
+}
+
+export async function onRequest(context) {
+  const { request, env, params } = context;
+  const method = request.method;
+  const id = params.id;
+
+  if (method === 'OPTIONS') return new Response(null, { headers: CORS });
+
+  // ── GET /api/student/:id ───────────────────────────────────────────────────
+  if (method === 'GET') {
+    try {
+      const student = await env.DB.prepare(
+        `SELECT s.id, s.name, s.slug, s.class_id,
+                c.slug as class_slug, c.name as class_name
+         FROM students s
+         JOIN classes c ON c.id = s.class_id
+         WHERE s.id = ?`
+      ).bind(id).first();
+
+      if (!student) return json({ error: 'Student not found' }, 404);
+
+      const photosResult = await env.DB.prepare(
+        'SELECT id, url, r2_key, created_at FROM photos WHERE student_id = ? ORDER BY created_at ASC'
+      ).bind(id).all();
+
+      return json({ ...student, photos: photosResult.results });
+    } catch (e) {
+      return json({ error: e.message }, 500);
+    }
+  }
+
+  // ── PUT /api/student/:id — rename ──────────────────────────────────────────
+  if (method === 'PUT') {
+    const pw = request.headers.get('X-Teacher-Password') || request.headers.get('X-Admin-Password');
+    if (pw !== env.TEACHER_PASSWORD && pw !== env.ADMIN_PASSWORD) {
+      return json({ error: 'Unauthorized' }, 403);
+    }
+    try {
+      const { name } = await request.json();
+      if (!name || !name.trim()) return json({ error: 'Name required' }, 400);
+      const newSlug = slugify(name.trim());
+      await env.DB.prepare(
+        'UPDATE students SET name = ?, slug = ? WHERE id = ?'
+      ).bind(name.trim(), newSlug, id).run();
+      return json({ success: true });
+    } catch (e) {
+      return json({ error: e.message }, 500);
+    }
+  }
+
+  // ── DELETE /api/student/:id — remove student + photos ─────────────────────
+  if (method === 'DELETE') {
+    const pw = request.headers.get('X-Teacher-Password') || request.headers.get('X-Admin-Password');
+    if (pw !== env.TEACHER_PASSWORD && pw !== env.ADMIN_PASSWORD) {
+      return json({ error: 'Unauthorized' }, 403);
+    }
+    try {
+      // Delete photos from R2
+      const photos = await env.DB.prepare(
+        'SELECT r2_key FROM photos WHERE student_id = ?'
+      ).bind(id).all();
+
+      for (const photo of photos.results) {
+        try { await env.R2.delete(photo.r2_key); } catch {}
+      }
+
+      await env.DB.prepare('DELETE FROM photos WHERE student_id = ?').bind(id).run();
+      await env.DB.prepare('DELETE FROM students WHERE id = ?').bind(id).run();
+
+      return json({ success: true });
+    } catch (e) {
+      return json({ error: e.message }, 500);
+    }
+  }
+
+  return new Response('Method not allowed', { status: 405, headers: CORS });
+}
