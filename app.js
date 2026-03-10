@@ -40,7 +40,7 @@ function shuffle(arr) {
 // ── Detect which page we are on ─────────────────────────────────────────────
 const PAGE = (() => {
   const path = window.location.pathname;
-  if (path.endsWith('class.html')) return 'class';
+      if (path.endsWith('class.html') || path.endsWith('/class')) return 'class';
   return 'index'; // default splash
 })();
 
