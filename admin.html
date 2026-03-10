@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Login screen -->
+  <div class="admin-login" id="adminLogin">
+    <div class="admin-login-box">
+      <div class="admin-lock">&#128272;</div>
+      <h1 class="admin-login-title">Admin Dashboard</h1>
+      <p class="admin-login-sub">Ben only &#8212; enter admin password</p>
+      <input type="password" class="dialog-input" id="adminPasswordInput" placeholder="Password" />
+      <p class="dialog-error" id="adminLoginError" style="display:none">Incorrect password.</p>
+      <button class="btn-confirm full-width" id="adminLoginBtn">Enter</button>
+      <a href="index.html" class="back-link">&#8592; Back to showcase</a>
+    </div>
+  </div>
+
+  <!-- Admin panel (hidden until logged in) -->
+  <div class="admin-panel" id="adminPanel" style="display:none">
+    <header class="admin-header">
+      <div>
+        <h1 class="admin-title">Admin Dashboard &#128272;</h1>
+        <p class="admin-sub">Manage all classes</p>
+      </div>
+      <a href="index.html" class="back-btn">&#8592; Back to showcase</a>
+    </header>
+
+    <!-- Classes overview -->
+    <section class="admin-section">
+      <h2 class="admin-section-title">Classes</h2>
+      <div class="class-list" id="classList">
+        <!-- Injected by JS -->
+      </div>
+
+      <!-- Add class form -->
+      <div class="add-class-row">
+        <input type="text" class="dialog-input" id="newClassNameInput" placeholder="New class name (e.g. Butterflies)" />
+        <input type="color" class="color-swatch" id="newClassColorInput" value="#a89fc8" title="Choose background colour" />
+        <button class="btn-confirm" id="addClassBtn">Add Class</button>
+      </div>
+      <p class="save-feedback" id="addClassFeedback" style="display:none">&#10003; Class added!</p>
+    </section>
+  </div>
+
+  <!-- Confirm remove class dialog -->
+  <div class="dialog-overlay" id="removeClassOverlay" style="display:none">
+    <div class="dialog-box">
+      <h2 class="dialog-title">Remove Class?</h2>
+      <p class="dialog-body" id="removeClassMsg">This will permanently remove the class, all its students, and all their photos. This cannot be undone.</p>
+      <div class="dialog-buttons">
+        <button class="btn-cancel" id="removeClassCancel">Cancel</button>
+        <button class="btn-danger" id="removeClassConfirm">Remove Class</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="admin.js"></script>
+</body>
+</html>
