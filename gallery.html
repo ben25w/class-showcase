@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gallery</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="gallery-page" id="galleryPage">
+    <header class="gallery-header" id="galleryHeader">
+      <button class="back-btn" id="backBtn">&#8592; Back</button>
+      <div class="gallery-header-row">
+        <div>
+          <h1 class="gallery-title" id="galleryTitle">Loading...</h1>
+          <p class="gallery-count" id="galleryCount"></p>
+        </div>
+        <button class="teacher-btn" id="teacherBtn">&#128274; Teacher</button>
+      </div>
+    </header>
+
+    <main class="photo-grid-wrap">
+      <div class="photo-grid" id="photoGrid">
+        <!-- Photos injected by JS -->
+      </div>
+    </main>
+
+    <div class="add-photo-wrap">
+      <input type="file" accept="image/*" capture="environment" id="fileInput" style="display:none" />
+      <label for="fileInput" class="add-photo-btn" id="addPhotoBtn">
+        <span id="addPhotoBtnText">&#128247; Add Photo</span>
+      </label>
+    </div>
+
+    <footer class="gallery-footer">
+      <button class="teacher-zone-btn" id="teacherZoneBtnGallery">Teacher Zone &#128272;</button>
+    </footer>
+  </div>
+
+  <!-- Lightbox -->
+  <div class="lightbox" id="lightbox" style="display:none">
+    <button class="lightbox-close" id="lightboxClose">&#10005;</button>
+    <button class="lightbox-prev" id="lightboxPrev">&#8249;</button>
+    <img class="lightbox-img" id="lightboxImg" src="" alt="" />
+    <button class="lightbox-next" id="lightboxNext">&#8250;</button>
+    <div class="lightbox-counter" id="lightboxCounter"></div>
+  </div>
+
+  <!-- Teacher password dialog -->
+  <div class="dialog-overlay" id="passwordOverlay" style="display:none">
+    <div class="dialog-box">
+      <h2 class="dialog-title">Teacher Mode</h2>
+      <p class="dialog-body">Enter the teacher password to enable photo deletion.</p>
+      <input type="password" class="dialog-input" id="passwordInput" placeholder="Password" />
+      <p class="dialog-error" id="passwordError" style="display:none">Incorrect password. Try again.</p>
+      <div class="dialog-buttons">
+        <button class="btn-cancel" id="passwordCancel">Cancel</button>
+        <button class="btn-confirm" id="passwordSubmit">Unlock</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirm delete dialog -->
+  <div class="dialog-overlay" id="deleteOverlay" style="display:none">
+    <div class="dialog-box">
+      <h2 class="dialog-title">Delete Photo?</h2>
+      <p class="dialog-body">This will permanently remove the photo. This cannot be undone.</p>
+      <div class="dialog-buttons">
+        <button class="btn-cancel" id="deleteCancel">Cancel</button>
+        <button class="btn-danger" id="deleteConfirm">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="gallery.js"></script>
+</body>
+</html>
