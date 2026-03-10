@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Teacher Zone</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Login screen -->
+  <div class="admin-login" id="teacherLogin">
+    <div class="admin-login-box">
+      <div class="admin-lock">&#128274;</div>
+      <h1 class="admin-login-title">Teacher Zone</h1>
+      <p class="admin-login-sub" id="loginSub">Enter your password to continue</p>
+      <input type="password" class="dialog-input" id="teacherPasswordInput" placeholder="Password" />
+      <p class="dialog-error" id="teacherLoginError" style="display:none">Incorrect password.</p>
+      <button class="btn-confirm full-width" id="teacherLoginBtn">Enter</button>
+      <a href="index.html" class="back-link">&#8592; Back to showcase</a>
+    </div>
+  </div>
+
+  <!-- Teacher panel (hidden until logged in) -->
+  <div class="admin-panel" id="teacherPanel" style="display:none">
+    <header class="admin-header">
+      <div>
+        <h1 class="admin-title">Teacher Zone &#128274;</h1>
+        <p class="admin-sub" id="teacherPanelSub">Managing your class</p>
+      </div>
+      <a href="#" class="back-btn" id="backToClassBtn">&#8592; Back</a>
+    </header>
+
+    <!-- Class name + colour -->
+    <section class="admin-section">
+      <h2 class="admin-section-title">Class Settings</h2>
+      <div class="setting-row">
+        <label class="setting-label">Class name</label>
+        <input type="text" class="dialog-input" id="classNameInput" style="max-width:240px;margin:0" placeholder="Class name" />
+      </div>
+      <div class="setting-row">
+        <label class="setting-label">Background colour</label>
+        <input type="color" class="color-swatch" id="bgColorInput" value="#a89fc8" />
+      </div>
+      <button class="btn-confirm" id="saveClassSettingsBtn">Save</button>
+      <p class="save-feedback" id="classSettingsFeedback" style="display:none">&#10003; Saved!</p>
+    </section>
+
+    <!-- Display settings -->
+    <section class="admin-section">
+      <h2 class="admin-section-title">Display Settings</h2>
+      <div class="setting-row">
+        <label class="setting-label">Student order</label>
+        <div class="btn-group" id="sortGroup">
+          <button class="btn-toggle active" data-value="alphabetical">A &#8594; Z</button>
+          <button class="btn-toggle" data-value="random">Random</button>
+        </div>
+      </div>
+      <div class="setting-row">
+        <label class="setting-label">Bubble shape</label>
+        <div class="btn-group shape-group" id="shapeGroup">
+          <button class="btn-toggle active" data-value="circles">&#9679; Circles</button>
+          <button class="btn-toggle" data-value="squares">&#9632; Squares</button>
+          <button class="btn-toggle" data-value="rectangles">&#9644; Rectangles</button>
+          <button class="btn-toggle" data-value="triangles">&#9650; Triangles</button>
+          <button class="btn-toggle" data-value="mixed">&#127922; Mixed</button>
+        </div>
+      </div>
+      <button class="btn-confirm" id="saveSettingsBtn">Save Settings</button>
+      <p class="save-feedback" id="saveFeedback" style="display:none">&#10003; Saved!</p>
+    </section>
+
+    <!-- Students section -->
+    <section class="admin-section">
+      <h2 class="admin-section-title">Students</h2>
+      <div class="student-list" id="studentList">
+        <!-- Injected by JS -->
+      </div>
+      <div class="add-student-row">
+        <input type="text" class="dialog-input" id="newStudentInput" placeholder="Add a student name..." />
+        <button class="btn-confirm" id="addStudentBtn">Add</button>
+      </div>
+    </section>
+
+    <!-- Photos section -->
+    <section class="admin-section">
+      <h2 class="admin-section-title">Delete Photos</h2>
+      <p class="admin-hint">Select a student to see and delete their photos.</p>
+      <select class="dialog-input" id="photoStudentSelect">
+        <option value="">&#8212; Choose a student &#8212;</option>
+      </select>
+      <div class="admin-photo-grid" id="adminPhotoGrid">
+        <!-- Injected by JS -->
+      </div>
+    </section>
+  </div>
+
+  <!-- Confirm delete photo dialog -->
+  <div class="dialog-overlay" id="adminDeleteOverlay" style="display:none">
+    <div class="dialog-box">
+      <h2 class="dialog-title">Delete Photo?</h2>
+      <p class="dialog-body">This will permanently remove the photo.</p>
+      <div class="dialog-buttons">
+        <button class="btn-cancel" id="adminDeleteCancel">Cancel</button>
+        <button class="btn-danger" id="adminDeleteConfirm">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirm remove student dialog -->
+  <div class="dialog-overlay" id="removeStudentOverlay" style="display:none">
+    <div class="dialog-box">
+      <h2 class="dialog-title">Remove Student?</h2>
+      <p class="dialog-body" id="removeStudentMsg">This will remove the student and all their photos.</p>
+      <div class="dialog-buttons">
+        <button class="btn-cancel" id="removeStudentCancel">Cancel</button>
+        <button class="btn-danger" id="removeStudentConfirm">Remove</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="teacher.js"></script>
+</body>
+</html>
