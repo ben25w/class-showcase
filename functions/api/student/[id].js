@@ -2,11 +2,18 @@
 // PUT /api/student/:id    — rename student (teacher)
 // DELETE /api/student/:id — remove student + photos (teacher)
 
-const CORS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, PUT, DELETE, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, X-Admin-Password, X-Teacher-Password',
-};
+const ALLOWED_ORIGINS = ['https://class-showcase.pages.dev'];
+
+function getCORS(request) {
+  const origin = request.headers.get('Origin') || '';
+  const allowed = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  return {
+    'Access-Control-Allow-Origin': allowed,
+    'Access-Control-Allow-Methods': 'GET, PUT, DELETE, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, X-Admin-Password, X-Teacher-Password',
+    'Vary': 'Origin',
+  };
+}
 
 function slugify(name) {
   return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
@@ -23,6 +30,7 @@ export async function onRequest(context) {
   const { request, env, params } = context;
   const method = request.method;
   const id = params.id;
+  const CORS = getCORS(request);
 
   if (method === 'OPTIONS') return new Response(null, { headers: CORS });
 

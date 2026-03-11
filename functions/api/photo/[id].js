@@ -1,10 +1,17 @@
 // DELETE /api/photo/:id — delete a single photo (teacher or password in body)
 
-const CORS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'DELETE, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, X-Admin-Password, X-Teacher-Password',
-};
+const ALLOWED_ORIGINS = ['https://class-showcase.pages.dev'];
+
+function getCORS(request) {
+  const origin = request.headers.get('Origin') || '';
+  const allowed = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  return {
+    'Access-Control-Allow-Origin': allowed,
+    'Access-Control-Allow-Methods': 'DELETE, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, X-Admin-Password, X-Teacher-Password',
+    'Vary': 'Origin',
+  };
+}
 
 function json(data, status = 200) {
   return new Response(JSON.stringify(data), {
@@ -16,6 +23,7 @@ function json(data, status = 200) {
 export async function onRequest(context) {
   const { request, env, params } = context;
   const method = request.method;
+  const CORS = getCORS(request);
 
   if (method === 'OPTIONS') return new Response(null, { headers: CORS });
 

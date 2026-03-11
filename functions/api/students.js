@@ -1,10 +1,17 @@
 // POST /api/students — add a student to a class (teacher)
 
-const CORS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, X-Admin-Password, X-Teacher-Password',
-};
+const ALLOWED_ORIGINS = ['https://class-showcase.pages.dev'];
+
+function getCORS(request) {
+  const origin = request.headers.get('Origin') || '';
+  const allowed = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  return {
+    'Access-Control-Allow-Origin': allowed,
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, X-Admin-Password, X-Teacher-Password',
+    'Vary': 'Origin',
+  };
+}
 
 function slugify(name) {
   return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
@@ -20,6 +27,7 @@ function json(data, status = 200) {
 export async function onRequest(context) {
   const { request, env } = context;
   const method = request.method;
+  const CORS = getCORS(request);
 
   if (method === 'OPTIONS') return new Response(null, { headers: CORS });
 

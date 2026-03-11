@@ -74,7 +74,7 @@ In your Pages project → Settings → Bindings:
 ### Environment variables
 In Settings → Variables and Secrets:
 - `R2_PUBLIC_URL` — your R2 public URL (e.g. `https://pub-xxxxx.r2.dev`)
-- `ADMIN_PASSWORD` — Harrow
+- `ADMIN_PASSWORD` — your-admin-password
 - `TEACHER_PASSWORD` — your teacher password
 
 After adding bindings and variables, do a manual redeploy.
@@ -85,7 +85,7 @@ After adding bindings and variables, do a manual redeploy.
 - `/class.html?class=butterflies` — Student grid for Butterflies class
 - `/gallery.html?class=butterflies&student=42` — Oliver's gallery
 - `/teacher.html?class=butterflies` — Teacher Zone for Butterflies
-- `/admin.html` — Admin Dashboard (Ben only, password: Harrow)
+- `/admin.html` — Admin Dashboard (Ben only, password: your-admin-password)
 
 ## Phase 1 / Phase 2
 

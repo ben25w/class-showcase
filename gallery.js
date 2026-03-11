@@ -231,7 +231,7 @@ fileInput.addEventListener('change', async e => {
   try {
     const response = await fetch('/api/photos', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json' , 'X-Teacher-Password': verifiedPassword},
       body: JSON.stringify({
         studentId,
         classSlug,
