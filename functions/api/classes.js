@@ -1,5 +1,5 @@
-// GET /api/classes          — list all classes (+ student counts)
-// POST /api/classes         — create a new class (admin only)
+// GET /api/classes -- list all classes (+ student counts)
+// POST /api/classes -- create a new class (admin only)
 
 const ALLOWED_ORIGINS = ['https://class-showcase.pages.dev'];
 
@@ -18,10 +18,10 @@ function slugify(name) {
   return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 }
 
-function json(data, status = 200) {
+function json(data, status, cors) {
   return new Response(JSON.stringify(data), {
-    status,
-    headers: { ...CORS, 'Content-Type': 'application/json' },
+    status: status || 200,
+    headers: { ...cors, 'Content-Type': 'application/json' },
   });
 }
 
@@ -32,7 +32,6 @@ export async function onRequest(context) {
 
   if (method === 'OPTIONS') return new Response(null, { headers: CORS });
 
-  // ── GET all classes ────────────────────────────────────────────────────────
   if (method === 'GET') {
     try {
       const result = await env.DB.prepare(
@@ -43,37 +42,30 @@ export async function onRequest(context) {
          GROUP BY c.id
          ORDER BY c.sort_order ASC, c.name ASC`
       ).all();
-      return json({ classes: result.results });
+      return json({ classes: result.results }, 200, CORS);
     } catch (e) {
-      return json({ error: e.message }, 500);
+      return json({ error: e.message }, 500, CORS);
     }
   }
 
-  // ── POST new class (admin only) ────────────────────────────────────────────
   if (method === 'POST') {
     const pw = request.headers.get('X-Admin-Password');
-    if (pw !== env.ADMIN_PASSWORD) return json({ error: 'Unauthorized' }, 403);
-
+    if (pw !== env.ADMIN_PASSWORD) return json({ error: 'Unauthorized' }, 403, CORS);
     try {
       const body = await request.json();
       const name = (body.name || '').trim();
-      if (!name) return json({ error: 'Name required' }, 400);
-
+      if (!name) return json({ error: 'Name required' }, 400, CORS);
       const slug = slugify(name);
       const bgColor = body.background_color || '#a89fc8';
       const settings = JSON.stringify({ sort_order: 'alphabetical', shape_mode: 'circles' });
-
-      // Find next sort_order
       const maxRow = await env.DB.prepare('SELECT MAX(sort_order) as m FROM classes').first();
       const sortOrder = (maxRow?.m ?? -1) + 1;
-
       await env.DB.prepare(
         'INSERT INTO classes (name, slug, background_color, settings, sort_order) VALUES (?, ?, ?, ?, ?)'
       ).bind(name, slug, bgColor, settings, sortOrder).run();
-
-      return json({ success: true, slug });
+      return json({ success: true, slug }, 200, CORS);
     } catch (e) {
-      return json({ error: e.message }, 500);
+      return json({ error: e.message }, 500, CORS);
     }
   }
 

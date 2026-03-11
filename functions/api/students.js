@@ -1,4 +1,4 @@
-// POST /api/students — add a student to a class (teacher)
+// POST /api/students -- add a student to a class (teacher)
 
 const ALLOWED_ORIGINS = ['https://class-showcase.pages.dev'];
 
@@ -17,10 +17,10 @@ function slugify(name) {
   return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 }
 
-function json(data, status = 200) {
+function json(data, status, cors) {
   return new Response(JSON.stringify(data), {
-    status,
-    headers: { ...CORS, 'Content-Type': 'application/json' },
+    status: status || 200,
+    headers: { ...cors, 'Content-Type': 'application/json' },
   });
 }
 
@@ -34,35 +34,30 @@ export async function onRequest(context) {
   if (method === 'POST') {
     const pw = request.headers.get('X-Teacher-Password') || request.headers.get('X-Admin-Password');
     if (pw !== env.TEACHER_PASSWORD && pw !== env.ADMIN_PASSWORD) {
-      return json({ error: 'Unauthorized' }, 403);
+      return json({ error: 'Unauthorized' }, 403, CORS);
     }
     try {
       const { name, classSlug } = await request.json();
-      if (!name || !name.trim()) return json({ error: 'Name required' }, 400);
-      if (!classSlug) return json({ error: 'classSlug required' }, 400);
-
+      if (!name || !name.trim()) return json({ error: 'Name required' }, 400, CORS);
+      if (!classSlug) return json({ error: 'classSlug required' }, 400, CORS);
       const cls = await env.DB.prepare(
         'SELECT id FROM classes WHERE slug = ?'
       ).bind(classSlug).first();
-      if (!cls) return json({ error: 'Class not found' }, 404);
-
+      if (!cls) return json({ error: 'Class not found' }, 404, CORS);
       const slug = slugify(name.trim());
       const maxRow = await env.DB.prepare(
         'SELECT MAX(sort_order) as m FROM students WHERE class_id = ?'
       ).bind(cls.id).first();
       const sortOrder = (maxRow?.m ?? -1) + 1;
-
       await env.DB.prepare(
         'INSERT OR IGNORE INTO students (class_id, name, slug, sort_order) VALUES (?, ?, ?, ?)'
       ).bind(cls.id, name.trim(), slug, sortOrder).run();
-
       const student = await env.DB.prepare(
         'SELECT id, name, slug FROM students WHERE class_id = ? AND slug = ?'
       ).bind(cls.id, slug).first();
-
-      return json({ success: true, student });
+      return json({ success: true, student }, 200, CORS);
     } catch (e) {
-      return json({ error: e.message }, 500);
+      return json({ error: e.message }, 500, CORS);
     }
   }
 

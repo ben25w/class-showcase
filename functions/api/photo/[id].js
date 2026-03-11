@@ -1,4 +1,4 @@
-// DELETE /api/photo/:id — delete a single photo (teacher or password in body)
+// DELETE /api/photo/:id -- delete a single photo (teacher auth required)
 
 const ALLOWED_ORIGINS = ['https://class-showcase.pages.dev'];
 
@@ -13,10 +13,10 @@ function getCORS(request) {
   };
 }
 
-function json(data, status = 200) {
+function json(data, status, cors) {
   return new Response(JSON.stringify(data), {
-    status,
-    headers: { ...CORS, 'Content-Type': 'application/json' },
+    status: status || 200,
+    headers: { ...cors, 'Content-Type': 'application/json' },
   });
 }
 
@@ -28,32 +28,24 @@ export async function onRequest(context) {
   if (method === 'OPTIONS') return new Response(null, { headers: CORS });
 
   if (method === 'DELETE') {
-    // Accept password from header OR body (for gallery page teacher mode)
     let pw = request.headers.get('X-Teacher-Password') || request.headers.get('X-Admin-Password');
     if (!pw) {
-      try {
-        const body = await request.json();
-        pw = body.password;
-      } catch {}
+      try { const body = await request.json(); pw = body.password; } catch {}
     }
     if (pw !== env.TEACHER_PASSWORD && pw !== env.ADMIN_PASSWORD) {
-      return json({ error: 'Unauthorized' }, 403);
+      return json({ error: 'Unauthorized' }, 403, CORS);
     }
-
     const photoId = params.id;
     try {
       const photo = await env.DB.prepare(
         'SELECT id, r2_key FROM photos WHERE id = ?'
       ).bind(photoId).first();
-
-      if (!photo) return json({ error: 'Photo not found' }, 404);
-
+      if (!photo) return json({ error: 'Photo not found' }, 404, CORS);
       try { await env.R2.delete(photo.r2_key); } catch {}
       await env.DB.prepare('DELETE FROM photos WHERE id = ?').bind(photoId).run();
-
-      return json({ success: true });
+      return json({ success: true }, 200, CORS);
     } catch (e) {
-      return json({ error: e.message }, 500);
+      return json({ error: e.message }, 500, CORS);
     }
   }
 
